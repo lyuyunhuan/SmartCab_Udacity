@@ -23,6 +23,7 @@ class LearningAgent(Agent):
         ## TO DO ##
         ###########
         # Set any additional class parameters as needed
+        self.env = env
 
 
     def reset(self, destination=None, testing=False):
@@ -103,7 +104,11 @@ class LearningAgent(Agent):
         # When not learning, choose a random action
         # When learning, choose a random action with 'epsilon' probability
         #   Otherwise, choose an action with the highest Q-value for the current state
- 
+        
+        if self.learning: 
+            pass
+        else:
+            action = random.choice(self.valid_actions)
         return action
 
 
