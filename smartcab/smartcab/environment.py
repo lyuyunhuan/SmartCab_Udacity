@@ -363,6 +363,7 @@ class Environment(object):
                 # Did agent get to destination before deadline?
                 if state['deadline'] >= 0:
                     self.trial_data['success'] = 1
+                    #reward += 100  ##############
                 
                 # Stop the trial
                 self.done = True
