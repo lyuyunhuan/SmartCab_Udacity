@@ -5,6 +5,7 @@ from environment import Agent, Environment
 from planner import RoutePlanner
 from simulator import Simulator
 from collections import namedtuple
+from math import exp
 
 
 class LearningAgent(Agent):
@@ -43,8 +44,10 @@ class LearningAgent(Agent):
         ## TO DO ##
         ###########
         # Update epsilon using a decay function of your choice
-        self.epsilon = self.epsilon- 0.001
-        self.alpha = self.alpha - 0.0005
+        #self.epsilon = self.epsilon- 0.0005
+        
+        self.alpha = self.alpha - 0.00025
+        self.epsilon = exp(-0.003 * (float(0.5-self.alpha)/0.00025))
         # Update additional class parameters as needed
         # If 'testing' is True, set epsilon and alpha to 0
         if testing == True:
@@ -98,8 +101,13 @@ class LearningAgent(Agent):
         inputst = self.env.sense(self)  
         
         #if stats[self.planner.next_waypoint()] > 0 - 5 - self.epsilon * 10 or (inputst['light'] == 'green' and inputst['oncoming'] != 'left'):
-        if (inputst['light'] == 'green' and inputst['oncoming'] != 'left' and self.planner.next_waypoint() != 'right'):
+        if (inputst['light'] == 'green' and inputst['oncoming'] != 'left' and self.planner.next_waypoint() == 'left'):
+            #maxQ = self.planner.next_waypoint()
+            maxQ = 'forward'
+        elif (inputst['light'] == 'green' and inputst['oncoming'] != 'left' and self.planner.next_waypoint() != 'left'):
             maxQ = self.planner.next_waypoint()
+        #elif stats[self.planner.next_waypoint()] > 0:
+        #    maxQ = self.planner.next_waypoint()
         else:
             maxQ = max(stats.iteritems(), key=operator.itemgetter(1))[0]#None
 
