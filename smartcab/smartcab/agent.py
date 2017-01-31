@@ -46,8 +46,8 @@ class LearningAgent(Agent):
         # Update epsilon using a decay function of your choice
         #self.epsilon = self.epsilon- 0.0005
         
-        self.alpha = self.alpha - 0.00005
-        self.epsilon = exp(-0.0008 * (float(0.5-self.alpha)/0.00025))
+        self.alpha = self.alpha - 0.00007
+        self.epsilon = exp(-0.0005 * (float(0.5-self.alpha)/0.00007))
         # Update additional class parameters as needed
         # If 'testing' is True, set epsilon and alpha to 0
         if testing == True:
@@ -108,7 +108,7 @@ class LearningAgent(Agent):
         ##    maxQ = 'left'
         ##elif (inputst['light'] == 'green' and inputst['oncoming'] != 'left' and self.planner.next_waypoint() != 'left' and stats[self.planner.next_waypoint()] > -3):
         ##    maxQ = self.planner.next_waypoint()
-        if stats[self.planner.next_waypoint()] >= -3:
+        if stats[self.planner.next_waypoint()] >= -4.2:
             maxQ = self.planner.next_waypoint()
         else:
             maxQ = max(stats.iteritems(), key=operator.itemgetter(1))[0]#None
