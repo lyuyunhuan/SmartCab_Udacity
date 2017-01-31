@@ -334,7 +334,7 @@ class Environment(object):
         # Did the agent attempt a valid move?
         if violation == 0:
             if action == agent.get_next_waypoint(): # Was it the correct action?
-                reward += 2 - penalty # (2, 1)
+                reward += 20 - penalty # (2, 1) ## 2 to 20
             elif action == None and light != 'green': # Was the agent stuck at a red light?
                 reward += 2 - penalty # (2, 1)
             else: # Valid but incorrect

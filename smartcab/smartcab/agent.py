@@ -102,14 +102,14 @@ class LearningAgent(Agent):
         
         #if stats[self.planner.next_waypoint()] > 0 - 5 - self.epsilon * 10 or (inputst['light'] == 'green' and inputst['oncoming'] != 'left'):
         ####if (inputst['light'] == 'green' and inputst['oncoming'] == None ):
-        ####    maxQ = self.planner.next_waypoint()
+        ####    maxQ = a
         ##elif (inputst['light'] == 'green' and inputst['oncoming'] != 'left' and self.planner.next_waypoint() == 'left' and stats[self.planner.next_waypoint()] > -3):
             #maxQ = self.planner.next_waypoint()
         ##    maxQ = 'left'
         ##elif (inputst['light'] == 'green' and inputst['oncoming'] != 'left' and self.planner.next_waypoint() != 'left' and stats[self.planner.next_waypoint()] > -3):
         ##    maxQ = self.planner.next_waypoint()
-        if stats[self.planner.next_waypoint()] >= -4.2:
-            maxQ = self.planner.next_waypoint()
+        if stats[a] >= -4.2:
+            maxQ = a
         else:
             maxQ = max(stats.iteritems(), key=operator.itemgetter(1))[0]#None
 
