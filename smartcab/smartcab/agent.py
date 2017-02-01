@@ -76,6 +76,15 @@ class LearningAgent(Agent):
         u = ''.join(waypoint)
         v = ''.join(inputs)
         return (waypoint, inputs)
+    
+    def re_left(self, state5):
+        a,b = state5
+        u = ''.join(a)
+        v = ''.join(b)
+        s = u+v
+        
+        stats = self.Q[s]
+        return stats['left']
 
 
     def get_maxQ(self, state4):
@@ -91,11 +100,25 @@ class LearningAgent(Agent):
         
         a,b = state4
         u = ''.join(a)
-        v = ''.join(b)
+        #v1 = ''.join(b['oncoming'])
+        if b['oncoming'] == None:
+            v1 = ''.join('None')
+        else:
+            v1 = ''.join(b['oncoming'])
         
+        if b['left'] == None:
+            v2 = ''.join('None')
+        else:
+            v2 = ''.join(b['left'])    
+       
+        if b['right'] == None:
+            v3 = ''.join('None')
+        else:
+            v3 = ''.join(b['right']) 
         
+        v4 = ''.join(b['light'])
         ###s = ''.join(state2)
-        s = u+v
+        s = u+v1+v2+v3+v4
         
         stats = self.Q[s]
         inputst = self.env.sense(self)  
@@ -108,11 +131,18 @@ class LearningAgent(Agent):
         ##    maxQ = 'left'
         ##elif (inputst['light'] == 'green' and inputst['oncoming'] != 'left' and self.planner.next_waypoint() != 'left' and stats[self.planner.next_waypoint()] > -3):
         ##    maxQ = self.planner.next_waypoint()
-        if stats[a] >= -4.2:
+        if a == None:
+            b = 'None'
+        else:
+            b = a
+        
+        if stats[b] >= -4.2:
             maxQ = a
         else:
             maxQ = max(stats.iteritems(), key=operator.itemgetter(1))[0]#None
-
+            if maxQ == 'None':
+                maxQ = None
+        
         return maxQ 
 
 
@@ -138,11 +168,24 @@ class LearningAgent(Agent):
         #print state.direction
         a,b = state2
         u = ''.join(a)
-        v = ''.join(b)
+        if b['oncoming'] == None:
+            v1 = ''.join('None')
+        else:
+            v1 = ''.join(b['oncoming'])
         
+        if b['left'] == None:
+            v2 = ''.join('None')
+        else:
+            v2 = ''.join(b['left'])    
+       
+        if b['right'] == None:
+            v3 = ''.join('None')
+        else:
+            v3 = ''.join(b['right']) 
+        v4 = ''.join(b['light'])
         
         ###s = ''.join(state2)
-        s = u+v
+        s = u+v1+v2+v3+v4
         if s not in self.Q:
         ####    pass
         ####else:
@@ -150,7 +193,7 @@ class LearningAgent(Agent):
             self.Q[s]['right'] = 0
             self.Q[s]['left'] = 0
             self.Q[s]['forward'] = 0
-            self.Q[s][None] = 0
+            self.Q[s]['None'] = 0
         # If it is not, create a new dictionary for that state
         ##if not exsit:
         #   Then, for each action available, set the initial Q-value to 0.0
@@ -202,13 +245,31 @@ class LearningAgent(Agent):
         #   Use only the learning rate 'alpha' (do not use the discount factor 'gamma')
         a,b = state3
         u = ''.join(a)
-        v = ''.join(b)
+        if b['oncoming'] == None:
+            v1 = ''.join('None')
+        else:
+            v1 = ''.join(b['oncoming'])
         
+        if b['left'] == None:
+            v2 = ''.join('None')
+        else:
+            v2 = ''.join(b['left'])    
+       
+        if b['right'] == None:
+            v3 = ''.join('None')
+        else:
+            v3 = ''.join(b['right']) 
         
+        v4 = ''.join(b['light'])
         ###s = ''.join(state2)
-        s = u+v
+        s = u+v1+v2+v3+v4
         
-        self.Q[s][action] = self.alpha * reward + (1-self.alpha)*self.Q[s][action]
+        if action == None:
+            actionString = 'None'
+        else:
+            actionString = action
+        
+        self.Q[s][actionString] = self.alpha * reward + (1-self.alpha)*self.Q[s][actionString]
         return
 
 
