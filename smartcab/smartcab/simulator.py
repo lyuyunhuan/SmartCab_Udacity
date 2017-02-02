@@ -10,6 +10,7 @@ import time
 import random
 import importlib
 import csv
+##from agent import LearningAgent
 
 class Simulator(object):
     """Simulates agents in a dynamic smartcab environment.
@@ -34,7 +35,7 @@ class Simulator(object):
         'gray'    : (155, 155, 155)
     }
 
-    def __init__(self, env, size=None, update_delay=0.01, display=True, log_metrics=True, optimized=True):
+    def __init__(self, env, size=None, update_delay=0.01, display=True, log_metrics=True, optimized=False):
         self.env = env
         self.size = size if size is not None else ((self.env.grid_size[0] + 1) * self.env.block_size, (self.env.grid_size[1] + 2) * self.env.block_size)
         self.width, self.height = self.size
@@ -276,6 +277,7 @@ class Simulator(object):
             else: # Illegal
                 if status['violation'] == 1: # Minor violation
                     print "Agent idled at a green light with no oncoming traffic. (rewarded {:.2f})".format(status['reward'])
+                    #print "Agent idled at a green light with no oncoming traffic. (left {:.2f})".format(status['state']['left'])
                 elif status['violation'] == 2: # Major violation
                     print "Agent attempted driving {} through a red light. (rewarded {:.2f})".format(status['action'], status['reward'])
                 elif status['violation'] == 3: # Minor accident
