@@ -186,7 +186,7 @@ class LearningAgent(Agent):
         
         ###s = ''.join(state2)
         s = u+v1+v2+v3+v4
-        if s not in self.Q:
+        if s not in self.Q and self.learn:
         ####    pass
         ####else:
             self.Q[s]={}
@@ -264,12 +264,13 @@ class LearningAgent(Agent):
         ###s = ''.join(state2)
         s = u+v1+v2+v3+v4
         
+        
         if action == None:
             actionString = 'None'
         else:
             actionString = action
-        
-        self.Q[s][actionString] = self.alpha * reward + (1-self.alpha)*self.Q[s][actionString]
+        if self.learn:
+            self.Q[s][actionString] = self.alpha * reward + (1-self.alpha)*self.Q[s][actionString]
         return
 
 
