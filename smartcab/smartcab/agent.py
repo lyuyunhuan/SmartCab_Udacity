@@ -6,6 +6,7 @@ from planner import RoutePlanner
 from simulator import Simulator
 from collections import namedtuple
 from math import exp
+import cv2
 
 
 class LearningAgent(Agent):
@@ -20,8 +21,6 @@ class LearningAgent(Agent):
         # Set parameters of the learning agent
         self.learning = learning # Whether the agent is expected to learn
         self.Q = dict()          # Create a Q-table which will be a dictionary of tuples
-        ###St = namedtuple('State','direction receiving')
-        ###self.Q = {St:None, {}}
         self.epsilon = epsilon   # Random exploration factor
         self.alpha = alpha       # Learning factor
 
@@ -44,14 +43,14 @@ class LearningAgent(Agent):
         ## TO DO ##
         ###########
         # Update epsilon using a decay function of your choice
-        self.epsilon = self.epsilon- 0.05
-        
+        #self.epsilon = self.epsilon- 0.05       
         self.alpha = self.alpha - 0.00007
-        ##self.epsilon = exp(-0.0005 * (float(0.5-self.alpha)/0.00007))
+        self.epsilon = exp(-0.001 * (float(0.5-self.alpha)/0.00007))
         # Update additional class parameters as needed
         # If 'testing' is True, set epsilon and alpha to 0
         if testing == True:
             self.epsilon = 0
+            self.alpha = 0
 
         return None
 
@@ -70,21 +69,33 @@ class LearningAgent(Agent):
         ###########
         # Set 'state' as a tuple of relevant data for the agent 
         # https://pymotw.com/2/collections/namedtuple.html
-        
-        ###St = namedtuple('State','direction receiving')
-        ###nowState = St(direction = waypoint, receiving =inputs)#None
         u = ''.join(waypoint)
         v = ''.join(inputs)
         return (waypoint, inputs)
     
-    def re_left(self, state5):
+    def making_string_from_state(self, state5):
         a,b = state5
         u = ''.join(a)
-        v = ''.join(b)
-        s = u+v
+
+        if b['oncoming'] == None:
+            v1 = ''.join('None')
+        else:
+            v1 = ''.join(b['oncoming'])
         
-        stats = self.Q[s]
-        return stats['left']
+        if b['left'] == None:
+            v2 = ''.join('None')
+        else:
+            v2 = ''.join(b['left'])    
+       
+        if b['right'] == None:
+            v3 = ''.join('None')
+        else:
+            v3 = ''.join(b['right']) 
+        
+        v4 = ''.join(b['light'])
+
+        s = u+v1+v2+v3+v4
+        return a,s
 
 
     def get_maxQ(self, state4):
@@ -98,54 +109,34 @@ class LearningAgent(Agent):
         # reference link: http://stackoverflow.com/questions/268272/getting-key-with-maximum-value-in-dictionary
         # reference link: http://yehnan.blogspot.tw/2015/06/pythonoperatoritemgetter.html
         
-        a,b = state4
-        u = ''.join(a)
-        #v1 = ''.join(b['oncoming'])
-        if b['oncoming'] == None:
-            v1 = ''.join('None')
-        else:
-            v1 = ''.join(b['oncoming'])
         
-        if b['left'] == None:
-            v2 = ''.join('None')
-        else:
-            v2 = ''.join(b['left'])    
-       
-        if b['right'] == None:
-            v3 = ''.join('None')
-        else:
-            v3 = ''.join(b['right']) 
-        
-        v4 = ''.join(b['light'])
-        ###s = ''.join(state2)
-        s = u+v1+v2+v3+v4
-        
+        a,s = self.making_string_from_state(state4)
         stats = self.Q[s]
         inputst = self.env.sense(self)  
-        
-        #if stats[self.planner.next_waypoint()] > 0 - 5 - self.epsilon * 10 or (inputst['light'] == 'green' and inputst['oncoming'] != 'left'):
-        ####if (inputst['light'] == 'green' and inputst['oncoming'] == None ):
-        ####    maxQ = a
-        ##elif (inputst['light'] == 'green' and inputst['oncoming'] != 'left' and self.planner.next_waypoint() == 'left' and stats[self.planner.next_waypoint()] > -3):
-            #maxQ = self.planner.next_waypoint()
-        ##    maxQ = 'left'
-        ##elif (inputst['light'] == 'green' and inputst['oncoming'] != 'left' and self.planner.next_waypoint() != 'left' and stats[self.planner.next_waypoint()] > -3):
-        ##    maxQ = self.planner.next_waypoint()
-        if a == None:
-            b = 'None'
-        else:
-            b = a
-        
-        if stats[b] >= -4.2:
-            maxQ = a
-        else:
-            maxQ = max(stats.iteritems(), key=operator.itemgetter(1))[0]#None
-            if maxQ == 'None':
-                maxQ = None
+        maxQ = max(stats.iteritems(), key=operator.itemgetter(1))[0]
+        if maxQ == 'None':
+            maxQ = None
         
         return maxQ 
 
-
+    def get_the_top_Q_randomed(self, state):
+        #http://stackoverflow.com/questions/3294889/iterating-over-dictionaries-using-for-loops-in-python
+        a,s = self.making_string_from_state(state)
+        stats = self.Q[s]
+        inputst = self.env.sense(self)
+        top_Qs = []
+        maxQ = max(stats.iteritems(), key=operator.itemgetter(1))[0]
+ 
+        for key in stats:
+            if stats[key] == stats[maxQ]:
+                top_Qs.append(key)
+        randomed_index = random.randint(1,len(top_Qs))
+        returned_Q = top_Qs[randomed_index-1]
+        if returned_Q == 'None':
+            returned_Q = None
+        
+        return returned_Q 
+        
     def createQ(self, state2):
         """ The createQ function is called when a state is generated by the agent. """
 
@@ -158,51 +149,16 @@ class LearningAgent(Agent):
         # http://stackoverflow.com/questions/4531941/typeerror-unhashable-type-dict-when-dict-used-as-a-key-for-another-dict?noredirect=1&lq=1
         # http://stackoverflow.com/questions/27435798/unhashable-type-dict-type-error
         # http://stackoverflow.com/questions/4878881/python-tuples-dictionaries-as-keys-select-sort
-        
-        ###namedState = namedtuple("namedState", "state1")
-        ###f = namedState(state1 = state)
-        ###dicc = self.Q
-        
-        ###exist = dicc.get(f,0)
+
         # http://stackoverflow.com/questions/4878881/python-tuples-dictionaries-as-keys-select-sort
-        #print state.direction
-        a,b = state2
-        u = ''.join(a)
-        if b['oncoming'] == None:
-            v1 = ''.join('None')
-        else:
-            v1 = ''.join(b['oncoming'])
-        
-        if b['left'] == None:
-            v2 = ''.join('None')
-        else:
-            v2 = ''.join(b['left'])    
        
-        if b['right'] == None:
-            v3 = ''.join('None')
-        else:
-            v3 = ''.join(b['right']) 
-        v4 = ''.join(b['light'])
-        
-        ###s = ''.join(state2)
-        s = u+v1+v2+v3+v4
+        a,s = self.making_string_from_state(state2)
         if s not in self.Q and self.learn:
-        ####    pass
-        ####else:
             self.Q[s]={}
             self.Q[s]['right'] = 0
             self.Q[s]['left'] = 0
             self.Q[s]['forward'] = 0
             self.Q[s]['None'] = 0
-        # If it is not, create a new dictionary for that state
-        ##if not exsit:
-        #   Then, for each action available, set the initial Q-value to 0.0
-            ##self.Q[state]=dict()
-            ##self.Q[state]['right'] = 0
-            ##self.Q[state]['left'] = 0
-            ##self.Q[state]['forward'] = 0
-            ##self.Q[state][None] = 0
-
         return 
 
 
@@ -225,7 +181,8 @@ class LearningAgent(Agent):
         if self.learning: 
             threshold = random.random()
             if threshold > self.epsilon:
-                action = self.get_maxQ(state)
+                #action = self.get_maxQ(state)
+                action = self.get_the_top_Q_randomed(state)
             else:
                 action = random.choice(self.valid_actions)
         else:
@@ -243,28 +200,7 @@ class LearningAgent(Agent):
         ###########
         # When learning, implement the value iteration update rule
         #   Use only the learning rate 'alpha' (do not use the discount factor 'gamma')
-        a,b = state3
-        u = ''.join(a)
-        if b['oncoming'] == None:
-            v1 = ''.join('None')
-        else:
-            v1 = ''.join(b['oncoming'])
-        
-        if b['left'] == None:
-            v2 = ''.join('None')
-        else:
-            v2 = ''.join(b['left'])    
-       
-        if b['right'] == None:
-            v3 = ''.join('None')
-        else:
-            v3 = ''.join(b['right']) 
-        
-        v4 = ''.join(b['light'])
-        ###s = ''.join(state2)
-        s = u+v1+v2+v3+v4
-        
-        
+        a, s = self.making_string_from_state(state3)
         if action == None:
             actionString = 'None'
         else:
